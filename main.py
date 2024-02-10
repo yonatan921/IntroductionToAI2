@@ -1,16 +1,19 @@
-# This is a sample Python script.
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from Aigent import AiAigent
+from Graph import Graph
+from Parser import Parser
+from GameMaster import GameMaster
+from name_tuppels import Point
 
 
-# Press the green button in the gutter to run the script.
+def main():
+    parser = Parser()
+    # graph = Graph(parser.max_x, parser.max_y,  parser.blocks, parser.fragile, parser.agents, 0, parser.packages)
+    graph = Graph(parser.max_x, parser.max_y, parser.blocks, parser.fragile, [AiAigent(Point(0, 0))], 0,
+                  parser.packages)
+    game_master = GameMaster(graph, parser.packages, parser.algo)
+    game_master.start_game()
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    main()
