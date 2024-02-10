@@ -10,8 +10,9 @@ from Dijkstra import Dijkstra
 
 
 class Aigent(abc.ABC, Tile):
-    def __init__(self, starting_point: Point):
+    def __init__(self, starting_point: Point, _id):
         super().__init__(starting_point)
+        self.id = _id
         self.score = 0
         self.pakages = set()
 
@@ -66,7 +67,6 @@ class Aigent(abc.ABC, Tile):
             self.point = new_location
             graph.move_agent(current_point, new_location)
 
-
     def move_agent_without_packages(self, graph, new_location):
         edge_crossed = {self.point, new_location}
         if edge_crossed in graph.fragile:
@@ -88,11 +88,14 @@ class Aigent(abc.ABC, Tile):
 
         return self.__key() == other.__key()
 
+    def string_state(self):
+        return f"packages:{[pakage for pakage in self.pakages]}, score: {self.score}"
+
 
 class StupidAigent(Aigent):
 
-    def __init__(self, starting_point: Point):
-        super().__init__(starting_point)
+    def __init__(self, starting_point: Point, _id):
+        super().__init__(starting_point, _id)
         self.symbol = "A"
 
     def make_move(self, graph):
@@ -116,8 +119,8 @@ class StupidAigent(Aigent):
 
 
 class HumanAigent(Aigent):
-    def __init__(self, starting_point: Point):
-        super().__init__(starting_point)
+    def __init__(self, starting_point: Point, _id):
+        super().__init__(starting_point, _id)
         self.symbol = "H"
 
     def make_move(self, graph):
@@ -139,8 +142,8 @@ class HumanAigent(Aigent):
 
 class InterferingAigent(Aigent):
 
-    def __init__(self, starting_point: Point):
-        super().__init__(starting_point)
+    def __init__(self, starting_point: Point, _id):
+        super().__init__(starting_point, _id)
         self.symbol = "I"
 
     def make_move(self, graph):
@@ -157,8 +160,8 @@ class InterferingAigent(Aigent):
 
 
 class AiAigent(Aigent):
-    def __init__(self, starting_point: Point):
-        super().__init__(starting_point)
+    def __init__(self, starting_point: Point, _id):
+        super().__init__(starting_point, _id)
         self.symbol = "AI"
         self.moves = []
         self.problem = None
@@ -172,7 +175,6 @@ class AiAigent(Aigent):
         self.move_agent(graph, new_location)
         if not self.moves:
             self.run_algo()
-
 
     def parse_move(self, node: Node, return_status):
         if return_status == ReturnStatus.Fail:
@@ -190,6 +192,6 @@ class AiAigent(Aigent):
             self.moves.pop()
 
     def run_algo(self):
-        last_node, return_status = self.algo.run_algo(self.problem, lambda g: MST().run_algo(g))
+        last_node, return_status = self.algo(self.problem)
         self.algo.expands_nums = 0
         self.parse_move(last_node, return_status)

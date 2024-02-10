@@ -7,7 +7,7 @@ from name_tuppels import Point
 
 class Graph:
     def __init__(self, max_x: int, max_y: int, blocks: {frozenset}, fragile: {frozenset}, agents: [Aigent], timer,
-                 packages):
+                 packages, utility_func):
         self.grid = None
         self.edges = None
         self.relevant_packages = set()
@@ -16,6 +16,7 @@ class Graph:
         self.init_grid(max_x, max_y, blocks)
         self.timer = timer
         self.all_packages = packages
+        self.utility = utility_func
 
     def init_grid(self, max_x, max_y, blocks: {frozenset}):
         self.grid = [[Tile(Point(i, j)) for i in range(max_x + 1)] for j in range(max_y + 1)]
@@ -43,7 +44,10 @@ class Graph:
         # self.all_packages -= self.relevant_packages
 
     def can_move(self, location: Point, new_location: Point):
-        return self.edges[location].get(new_location) is not None
+        if location == new_location:
+            return True
+        return self.edges[location].get(new_location) is not None and all(
+            [aigent.point != new_location for aigent in self.agents])
 
     def get_packages_to_take(self):
         return {package.point for package in self.relevant_packages}
@@ -52,8 +56,9 @@ class Graph:
         return {package.point_dst for package in self.relevant_packages}
 
     def __str__(self):
+        aigents_string = str([aigent.string_state() for aigent in self.agents]) + "\n"
         matrix_string = "\n".join(" ".join(str(tile) for tile in row) for row in self.grid)
-        return matrix_string + '\n'
+        return aigents_string + matrix_string + '\n'
 
     def remove_edge(self, edge: {Point}):
         p1, p2 = list(edge)
@@ -95,7 +100,8 @@ class Graph:
         self.remove_tile(org_point)
 
     def available_moves(self, my_point: Point) -> [Point]:
-        return [point for point, _ in self.edges[my_point].items()] + [my_point]
+        return [point for point, _ in self.edges[my_point].items() if
+                point not in [aigent.point for aigent in self.agents]] + [my_point]
 
     def edge_cost(self, p1, p2) -> int:
         if p1 == p2:
@@ -116,14 +122,16 @@ class Graph:
         if not isinstance(other, Graph):
             return False
         return self.__key() == other.__key()
-        #
-        # # Compare grid
-        # for row1, row2 in zip(self.grid, other.grid):
-        #     for tile1, tile2 in zip(row1, row2):
-        #         if tile1 != tile2:
-        #             return False
-        #
-        # return True
+
+    def calc_heuristic(self):
+        p1 = self.agents[0].score + 0.5 * len(self.agents[0].pakages) + 0.25 * len(self.all_packages)
+        p2 = self.agents[1].score + 0.5 * len(self.agents[1].pakages) + 0.25 * len(self.all_packages)
+        return p1, p2
 
     def __key(self):
         return tuple(self.relevant_packages), tuple(self.fragile), tuple(self.agents)
+
+    def find_aigent_by_id(self, _id):
+        for aigent in self.agents:
+            if aigent.id == _id:
+                return aigent

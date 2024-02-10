@@ -9,11 +9,15 @@ from name_tuppels import Point
 class Parser:
 
     def __init__(self):
+        strategy = {
+            "cooperative": lambda p1, p2: p1 + p2,
+            "semi": lambda p1, p2: p1,
+            "adversarial": lambda p1, p2: p1 - p2
+        }
         parser = argparse.ArgumentParser(description="Your program description here")
-        alogrithems = {"Astar" ,"Gready" ,"RealTime"}
         # Adding the 'filename' and 'algo' arguments
         parser.add_argument('--file', dest='filename', help="Input file path for the program")
-        parser.add_argument('--algo', help="Algorithm for the program, Astar Gready RealTime")
+        parser.add_argument('--utility', help="Strategy for mini max algorithm: cooperative, semi, adversarial ")
 
         # Parse the command-line arguments
         args = parser.parse_args()
@@ -21,9 +25,9 @@ class Parser:
         # Access the values using args.filename and args.algo
         filename = args.filename
 
-        self.algo = args.algo
-        if self.algo not in alogrithems:
+        if args.utility not in strategy:
             raise Exception
+        self.utility = strategy[args.utility]
         self.max_x = None
         self.max_y = None
         self.packages: {Package} = set()
@@ -46,12 +50,12 @@ class Parser:
                     self.blocks.add(self.parse_blocks(words))
                 elif self.command_word(words) == "F":
                     self.fragile.add(self.parse_fragile(words))
-                elif self.command_word(words) == "A":
-                    self.agents.append(StupidAigent(self.parse_greedy_aigent(words)))
-                elif self.command_word(words) == "H":
-                    self.agents.append(HumanAigent(self.parse_human_aigent(words)))
-                elif self.command_word(words) == "I":
-                    self.agents.append(InterferingAigent(self.parse_interfering_aigent(words)))
+                # elif self.command_word(words) == "A":
+                #     self.agents.append(StupidAigent(self.parse_greedy_aigent(words)))
+                # elif self.command_word(words) == "H":
+                #     self.agents.append(HumanAigent(self.parse_human_aigent(words)))
+                # elif self.command_word(words) == "I":
+                #     self.agents.append(InterferingAigent(self.parse_interfering_aigent(words)))
 
     def command_word(self, words: [str]) -> str:
         return words[0][1]
