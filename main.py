@@ -9,7 +9,7 @@ def main():
     parser = Parser()
     # graph = Graph(parser.max_x, parser.max_y,  parser.blocks, parser.fragile, parser.agents, 0, parser.packages)
     graph = Graph(parser.max_x, parser.max_y, parser.blocks, parser.fragile,
-                  [AiAigent(Point(0, 0), 0), AiAigent(Point(3, 0), 1)], 0,
+                  [AiAigent(Point(0, 0), 0), AiAigent(Point(4, 0), 1)], 0,
                   parser.packages, parser.utility)
     game_master = GameMaster(graph, parser.packages)
     game_master.start_game()

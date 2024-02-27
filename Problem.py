@@ -20,7 +20,6 @@ class Problem:
                 new_graph.agents[1].move_agent(new_graph, available_point)
             else:
                 new_graph.agents[0].move_agent(new_graph, available_point)
-            # aigent.move_agent(new_graph, available_point)
             successors[available_point] = new_graph
 
         return successors

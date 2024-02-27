@@ -25,9 +25,16 @@ class Parser:
         # Access the values using args.filename and args.algo
         filename = args.filename
 
-        if args.utility not in strategy:
+        if args.utility == "cooperative":
+            print("Mode: cooperative TS1 = TS2 = IS1 + IS2")
+        elif args.utility == "semi":
+            print("Mode: semi TS1 = IS1, TS2 = IS2")
+        elif args.utility == "adversarial":
+            print("Mode: adversarial TS1 = IS1 - IS2, TS2 = IS2 - IS1")
+        else:
             raise Exception
         self.utility = strategy[args.utility]
+
         self.max_x = None
         self.max_y = None
         self.packages: {Package} = set()

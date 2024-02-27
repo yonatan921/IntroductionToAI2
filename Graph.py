@@ -33,6 +33,15 @@ class Graph:
         self.grid[aigent.point.y][aigent.point.x] = aigent
 
     def add_package(self, package: Package):
+        for aigent in self.agents:
+            if package.point == aigent.point:
+                aigent.pakages.add(package)
+                package.picked_up = True
+                self.all_packages.remove(package)
+                if package.point_dst == aigent.point:
+                    aigent.pakages.remove(package)
+                    aigent.score += 1
+                return
         self.grid[package.point.y][package.point.x] = package
 
     def update_packages(self):
@@ -40,6 +49,9 @@ class Graph:
                                   package.from_time <= self.timer <= package.dead_line and not package.picked_up}
         for package in self.relevant_packages:
             self.add_package(package)
+
+        self.relevant_packages = {package for package in self.all_packages if
+                                  package.from_time <= self.timer <= package.dead_line and not package.picked_up}
 
         # self.all_packages -= self.relevant_packages
 
@@ -56,9 +68,10 @@ class Graph:
         return {package.point_dst for package in self.relevant_packages}
 
     def __str__(self):
+        packegs_str = "Left packages " + str([package.to_string() for package in self.all_packages] )+ "\n"
         aigents_string = str([aigent.string_state() for aigent in self.agents]) + "\n"
         matrix_string = "\n".join(" ".join(str(tile) for tile in row) for row in self.grid)
-        return aigents_string + matrix_string + '\n'
+        return packegs_str +  aigents_string + matrix_string + '\n'
 
     def remove_edge(self, edge: {Point}):
         p1, p2 = list(edge)
@@ -123,9 +136,9 @@ class Graph:
             return False
         return self.__key() == other.__key()
 
-    def calc_heuristic(self):
-        p1 = self.agents[0].score + 0.5 * len(self.agents[0].pakages) + 0.25 * len(self.all_packages)
-        p2 = self.agents[1].score + 0.5 * len(self.agents[1].pakages) + 0.25 * len(self.all_packages)
+    def calc_heuristic(self, aigent_id):
+        p1 = self.agents[aigent_id].score + 0.5 * len(self.agents[aigent_id].pakages) + 0.25 * len(self.all_packages)
+        p2 = self.agents[1 - aigent_id].score + 0.5 * len(self.agents[1 - aigent_id].pakages) + 0.25 * len(self.all_packages)
         return p1, p2
 
     def __key(self):

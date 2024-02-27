@@ -24,3 +24,6 @@ class Package(Tile):
         self.dead_line = dead_line
         self.picked_up = False
         self.symbol = "P"
+
+    def to_string(self):
+        return f"pick up location:{self.point}, destination:{self.point_dst}"

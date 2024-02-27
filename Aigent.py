@@ -89,7 +89,7 @@ class Aigent(abc.ABC, Tile):
         return self.__key() == other.__key()
 
     def string_state(self):
-        return f"packages:{[pakage for pakage in self.pakages]}, score: {self.score}"
+        return f"{self.symbol}: packages:{[pakage.to_string() for pakage in self.pakages]}, score: {self.score}"
 
 
 class StupidAigent(Aigent):
@@ -162,7 +162,7 @@ class InterferingAigent(Aigent):
 class AiAigent(Aigent):
     def __init__(self, starting_point: Point, _id):
         super().__init__(starting_point, _id)
-        self.symbol = "AI"
+        self.symbol = f"AI{_id} "
         self.moves = []
         self.problem = None
         self.algo = None
