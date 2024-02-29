@@ -17,6 +17,7 @@ class Graph:
         self.timer = timer
         self.all_packages = packages
         self.utility = utility_func
+        self.turn = 0
 
     def init_grid(self, max_x, max_y, blocks: {frozenset}):
         self.grid = [[Tile(Point(i, j)) for i in range(max_x + 1)] for j in range(max_y + 1)]
@@ -68,10 +69,10 @@ class Graph:
         return {package.point_dst for package in self.relevant_packages}
 
     def __str__(self):
-        packegs_str = "Left packages " + str([package.to_string() for package in self.all_packages] )+ "\n"
+        packegs_str = "Left packages " + str([package.to_string() for package in self.all_packages]) + "\n"
         aigents_string = str([aigent.string_state() for aigent in self.agents]) + "\n"
         matrix_string = "\n".join(" ".join(str(tile) for tile in row) for row in self.grid)
-        return packegs_str +  aigents_string + matrix_string + '\n'
+        return packegs_str + aigents_string + matrix_string + '\n'
 
     def remove_edge(self, edge: {Point}):
         p1, p2 = list(edge)
@@ -138,7 +139,8 @@ class Graph:
 
     def calc_heuristic(self, aigent_id):
         p1 = self.agents[aigent_id].score + 0.5 * len(self.agents[aigent_id].pakages) + 0.25 * len(self.all_packages)
-        p2 = self.agents[1 - aigent_id].score + 0.5 * len(self.agents[1 - aigent_id].pakages) + 0.25 * len(self.all_packages)
+        p2 = self.agents[1 - aigent_id].score + 0.5 * len(self.agents[1 - aigent_id].pakages) + 0.25 * len(
+            self.all_packages)
         return p1, p2
 
     def __key(self):

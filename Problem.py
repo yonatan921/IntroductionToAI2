@@ -10,16 +10,14 @@ class Problem:
         self.goal_state = goal_state
 
     @staticmethod
-    def find_successors(graph, aigent, update_timer):
+    def find_successors(graph):
         successors = {}
-        for available_point in graph.available_moves(aigent.point):
+        for available_point in graph.available_moves(graph.agents[graph.turn % 2].point):
             new_graph = copy.deepcopy(graph)
+            new_graph.turn += 1
             new_graph.update_packages()
-            if update_timer:
-                new_graph.timer += 1
-                new_graph.agents[1].move_agent(new_graph, available_point)
-            else:
-                new_graph.agents[0].move_agent(new_graph, available_point)
+            new_graph.timer += graph.turn % 2
+            new_graph.agents[graph.turn % 2].move_agent(new_graph, available_point)
             successors[available_point] = new_graph
 
         return successors

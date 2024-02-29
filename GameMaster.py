@@ -22,9 +22,10 @@ class GameMaster:
             self.graph.timer += 1
             for aigent in self.graph.agents:
                 self.update_packages()
-                action = self.mini_max_algo.mini_max_decision(self.graph, aigent.id)
+                action = self.mini_max_algo.maxi_max_decision(self.graph, aigent.id)
                 print(f"{action=}-------------")
                 aigent.move_agent(self.graph, action)
+                self.graph.turn += 1
         print(self)
 
     def game_over(self):
