@@ -48,13 +48,17 @@ class Graph:
     def update_packages(self):
         self.relevant_packages = {package for package in self.all_packages if
                                   package.from_time <= self.timer <= package.dead_line and not package.picked_up}
+        for aigent in self.agents:
+            aigent.update_packages(self.timer)
+        x = 6
+        # for package in self.all_packages:
+        #     x = 5
         for package in self.relevant_packages:
             self.add_package(package)
-
-        self.relevant_packages = {package for package in self.all_packages if
-                                  package.from_time <= self.timer <= package.dead_line and not package.picked_up}
-
-        # self.all_packages -= self.relevant_packages
+        #
+        # self.relevant_packages = {package for package in self.all_packages if
+        #                           package.from_time <= self.timer <= package.dead_line and not package.picked_up}
+        # self.all_packages = self.relevant_packages
 
     def can_move(self, location: Point, new_location: Point):
         if location == new_location:

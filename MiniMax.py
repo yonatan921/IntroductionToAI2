@@ -16,7 +16,7 @@ class MiniMax:
         return action
 
     def maxi_max_decision(self, graph: Graph, aigent_id) -> Point:
-        max_value, action = self.new_maxi_max(graph, 0, aigent_id)
+        max_value, action = self.minimax(graph, aigent_id, True)
         return action
 
     def max_value(self, caller_aigent, graph: Graph, a, b, deep, aigent_id, min_max: Callable) -> Tuple[
@@ -86,19 +86,68 @@ class MiniMax:
             b = min(b, v)
         return v, best_point, IS1, IS2_max
 
-    def new_maxi_max(self, graph: Graph, deep, aigent_id) -> Tuple[int, Point]:
+    def new_maxi_max(self, graph: Graph, deep, aigent_id, maxing: bool) -> Tuple[int, Point]:
         aigent = graph.find_aigent_by_id(aigent_id)
         IS1, IS2 = graph.calc_heuristic(aigent_id)
         TS1 = graph.utility(IS1, IS2)
-        TS2 = -1 * graph.utility(IS2, IS1)
-        if graph.game_over() or deep == self.cutoff_deep:
-            return TS1 if graph.turn % 2 == 0 else TS2, aigent.point
+        TS2 = graph.utility(IS2, IS1)
+        if graph.game_over():
+            return TS2 if graph.turn % 2 == 0 else TS1, aigent.point
 
         best_h = float("-inf")
         best_move = None
         for action, state in self.problem.find_successors(graph).items():
-            current_h, _ = self.new_maxi_max(state, deep + 1, aigent_id)
+            current_h, _ = self.new_maxi_max(state, deep + 1, 1 - aigent_id, not maxing)
             if current_h > best_h:
                 best_h = current_h
                 best_move = action
         return best_h, best_move
+
+    def minimax(self, graph: Graph, agent_id: int, maximizing: bool, alpha: float = float("-inf"),
+                beta: float = float("inf")) -> Tuple[int, Point]:
+        """
+        Implements the minimax algorithm with alpha-beta pruning.
+
+        Args:
+            graph: The current game state representation.
+            agent_id: The ID of the current player.
+            maximizing: Whether the current level is for maximizing or minimizing player.
+            alpha: The lower bound of potential scores for maximizing player.
+            beta: The upper bound of potential scores for minimizing player.
+
+        Returns:
+            A tuple containing the best heuristic value found and the corresponding action (move).
+        """
+
+        if graph.game_over():
+            # Base case: return heuristic value
+            IS1, IS2 = graph.calc_heuristic(agent_id)
+            TS1 = graph.utility(IS1, IS2)
+            TS2 = graph.utility(IS2, IS1)
+            return TS1 if maximizing else TS2, None
+
+        best_value = float("-inf") if maximizing else float("inf")
+        best_move = None
+
+        for action, successor_state in self.problem.find_successors(graph).items():
+            # Explore successors recursively with alpha-beta pruning
+            heuristic, _ = self.minimax(successor_state, 1 - agent_id, not maximizing, alpha, beta)
+
+            # Update best value and move based on maximizing/minimizing player
+            if maximizing:
+                if heuristic > best_value:
+                    best_value = heuristic
+                    best_move = action
+                alpha = max(alpha, best_value)  # Pruning for maximizing player
+                if beta <= alpha:  # Pruning condition
+                    break
+            else:
+                if heuristic < best_value:
+                    best_value = heuristic
+                    best_move = action
+                beta = min(beta, best_value)  # Pruning for minimizing player
+                if beta <= alpha:  # Pruning condition
+                    break
+
+        return best_value, best_move
+
