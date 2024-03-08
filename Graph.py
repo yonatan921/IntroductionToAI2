@@ -28,7 +28,8 @@ class Graph:
             self.remove_edge(edge)
 
     def game_over(self):
-        return len(self.relevant_packages) == 0 and all([aigent.game_over() for aigent in self.agents])
+        return not self.relevant_packages  and all(
+            [aigent.game_over() for aigent in self.agents])
 
     def add_aigent(self, aigent: Aigent):
         self.grid[aigent.point.y][aigent.point.x] = aigent

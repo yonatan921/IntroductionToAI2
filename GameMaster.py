@@ -24,7 +24,7 @@ class GameMaster:
                 self.update_packages()
                 if self.graph.game_over():
                     break
-                action = self.mini_max_algo.maxi_max_decision(self.graph, aigent.id)
+                action = self.mini_max_algo.coo_max_decision(self.graph, aigent.id)
 
                 print(f"{action=}-------------")
                 aigent.move_agent(self.graph, action)

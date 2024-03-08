@@ -19,6 +19,10 @@ class MiniMax:
         max_value, action = self.minimax(graph, aigent_id, True)
         return action
 
+    def coo_max_decision(self, graph: Graph, aigent_id) -> Point:
+        _, action, _ = self.coominimax(graph, aigent_id)
+        return action
+
     def max_value(self, caller_aigent, graph: Graph, a, b, deep, aigent_id, min_max: Callable) -> Tuple[
         int, Point, int, int]:
         aigent = graph.find_aigent_by_id(aigent_id)
@@ -151,3 +155,42 @@ class MiniMax:
 
         return best_value, best_move
 
+    def coominimax(self, graph: Graph, agent_id: int) -> Tuple[int, Point, int]:
+        """
+        Implements the minimax algorithm with alpha-beta pruning.
+
+        Args:
+            graph: The current game state representation.
+            agent_id: The ID of the current player.
+            maximizing: Whether the current level is for maximizing or minimizing player.
+            alpha: The lower bound of potential scores for maximizing player.
+            beta: The upper bound of potential scores for minimizing player.
+
+        Returns:
+            A tuple containing the best heuristic value found and the corresponding action (move).
+        """
+
+        if graph.game_over():
+            # Base case: return heuristic value
+            IS1, IS2 = graph.calc_heuristic(agent_id)
+            TS1 = graph.utility(IS1, IS2)
+            TS2 = graph.utility(IS2, IS1)
+            return TS1, None, TS2
+
+        best_value = float("-inf")
+        best_move = None
+        best_other_heuristic = float("-inf")
+        for action, successor_state in self.problem.find_successors(graph).items():
+            # Explore successors recursively with alpha-beta pruning
+            heuristic, _, other_heuristic = self.coominimax(successor_state, 1 - agent_id)
+
+            # Update best value and move based on maximizing/minimizing player
+            if heuristic > best_value:
+                best_value = heuristic
+                best_move = action
+                best_other_heuristic = other_heuristic
+            elif heuristic == best_value and other_heuristic > best_other_heuristic:
+                best_move = action
+                best_other_heuristic = heuristic
+
+        return best_value, best_move, best_other_heuristic
