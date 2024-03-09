@@ -26,7 +26,7 @@ class GameMaster:
                 if self.graph.game_over():
                     break
                 action = self.mini_max_algo(self.graph, aigent.id)
-                print(f"{action=}-------------")
+                print(f"agent: {aigent.symbol}, {action=}-------------")
                 aigent.move_agent(self.graph, action)
                 self.graph.turn += 1
         print(self)

@@ -39,6 +39,7 @@ class MiniMax:
             IS1, IS2 = graph.calc_heuristic(agent_id)
             TS1 = graph.utility(IS1, IS2)
             TS2 = graph.utility(IS2, IS1)
+            print(f"aigent {agent_id} IS: {IS1}, aigent {1-agent_id} IS: {IS2}. aigent {agent_id} TS: {TS1}, aigent {1-agent_id} TS: {TS2}")
             return TS1 if maximizing else TS2, None
 
         best_value = float("-inf") if maximizing else float("inf")
@@ -63,7 +64,7 @@ class MiniMax:
                 beta = min(beta, best_value)  # Pruning for minimizing player
                 if beta <= alpha:  # Pruning condition
                     break
-
+        # print(f"aigent = {agent_id}, best move: {best_move}, best value: {best_value}, deep: {deep}")
         return best_value, best_move
 
     def coominimax(self, graph: Graph, agent_id: int, deep: int) -> Tuple[int, Point, int]:
@@ -73,6 +74,8 @@ class MiniMax:
             IS1, IS2 = graph.calc_heuristic(agent_id)
             TS1 = graph.utility(IS1, IS2)
             TS2 = graph.utility(IS2, IS1)
+            print(
+                f"aigent {agent_id} IS: {IS1}, aigent {1 - agent_id} IS: {IS2}. aigent {agent_id} TS: {TS1}, aigent {1 - agent_id} TS: {TS2}")
             return TS2, None, TS1
 
         best_value = float("-inf")
