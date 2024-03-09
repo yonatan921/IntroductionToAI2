@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from Aigent import Aigent
 from Tile import Tile, Package
 from name_tuppels import Point

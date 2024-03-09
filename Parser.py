@@ -1,5 +1,3 @@
-from Aigent import StupidAigent, HumanAigent, InterferingAigent
-
 import argparse
 
 from Tile import Package

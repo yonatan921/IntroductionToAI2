@@ -1,12 +1,6 @@
 import abc
-from typing import Tuple
-
-from MST import MST
-from Node import Node
-from ReturnStatus import ReturnStatus
 from Tile import Tile
 from name_tuppels import Point
-from Dijkstra import Dijkstra
 
 
 class Aigent(abc.ABC, Tile):
@@ -92,73 +86,6 @@ class Aigent(abc.ABC, Tile):
         return f"{self.symbol}: packages:{[pakage.to_string() for pakage in self.pakages]}, score: {self.score}"
 
 
-class StupidAigent(Aigent):
-
-    def __init__(self, starting_point: Point, _id):
-        super().__init__(starting_point, _id)
-        self.symbol = "A"
-
-    def make_move(self, graph):
-        dijkstra = Dijkstra(graph)
-        new_location = self.point
-        if len(self.pakages) == 0:
-            packages_to_take = graph.get_packages_to_take()
-            path = dijkstra.dijkstra(self.point, packages_to_take)
-            if len(path) == 0:
-                self.no_op()
-            else:
-                new_location = path[0]
-        else:
-            for package in self.pakages:
-                path, dist = dijkstra.dijkstra_with_dest(self.point, package.point_dst)
-                if len(path) == 0:
-                    self.no_op()
-                else:
-                    new_location = path[0]
-        self.move_agent(graph, new_location)
-
-
-class HumanAigent(Aigent):
-    def __init__(self, starting_point: Point, _id):
-        super().__init__(starting_point, _id)
-        self.symbol = "H"
-
-    def make_move(self, graph):
-        x = input("Enter your move: 'w' = up, 'a' = left, 'd' = right, 's' = down \n")
-        if x == 'w':
-            new_location = Point(self.point.x, self.point.y - 1)
-        elif x == 'a':
-            new_location = Point(self.point.x - 1, self.point.y)
-        elif x == 'd':
-            new_location = Point(self.point.x + 1, self.point.y)
-        elif x == 's':
-            new_location = Point(self.point.x, self.point.y + 1)
-        else:
-            new_location = self.point
-            self.no_op()
-        if graph.can_move(self.point, new_location):
-            self.move_agent(graph, new_location)
-
-
-class InterferingAigent(Aigent):
-
-    def __init__(self, starting_point: Point, _id):
-        super().__init__(starting_point, _id)
-        self.symbol = "I"
-
-    def make_move(self, graph):
-        dijkstra = Dijkstra(graph)
-        points_of_fragile = set()
-        for point in graph.fragile:
-            points_of_fragile.update(point)
-        path = dijkstra.dijkstra(self.point, points_of_fragile)
-        if len(path) == 0:
-            self.no_op()
-        else:
-            new_location = path[0]
-            self.move_agent_without_packages(graph, new_location)
-
-
 class AiAigent(Aigent):
     def __init__(self, starting_point: Point, _id):
         super().__init__(starting_point, _id)
@@ -168,30 +95,5 @@ class AiAigent(Aigent):
         self.algo = None
 
     def make_move(self, graph):
-        if self.moves is None:
-            self.move_agent(graph, self.point)
+        pass
 
-        new_location = self.moves.pop().action
-        self.move_agent(graph, new_location)
-        if not self.moves:
-            self.run_algo()
-
-    def parse_move(self, node: Node, return_status):
-        if return_status == ReturnStatus.Fail:
-            self.moves = None
-        elif return_status == ReturnStatus.Cutoff:
-            while node:
-                self.moves.append(node)
-                node = node.parent
-            self.moves.pop()
-            self.moves = [self.moves.pop()]
-        else:
-            while node:
-                self.moves.append(node)
-                node = node.parent
-            self.moves.pop()
-
-    def run_algo(self):
-        last_node, return_status = self.algo(self.problem)
-        self.algo.expands_nums = 0
-        self.parse_move(last_node, return_status)
