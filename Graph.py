@@ -4,10 +4,16 @@ from Aigent import Aigent
 from Tile import Tile, Package
 from name_tuppels import Point
 
+strategy = {
+            "cooperative": lambda p1, p2: p1 + p2,
+            "semi": lambda p1, p2: p1,
+            "adversarial": lambda p1, p2: p1 - p2
+        }
+
 
 class Graph:
     def __init__(self, max_x: int, max_y: int, blocks: {frozenset}, fragile: {frozenset}, agents: [Aigent], timer,
-                 packages, utility_func):
+                 packages, utility):
         self.grid = None
         self.edges = None
         self.relevant_packages = set()
@@ -16,7 +22,7 @@ class Graph:
         self.init_grid(max_x, max_y, blocks)
         self.timer = timer
         self.all_packages = packages
-        self.utility = utility_func
+        self.utility = strategy[utility]
         self.turn = 0
 
     def init_grid(self, max_x, max_y, blocks: {frozenset}):
@@ -28,8 +34,13 @@ class Graph:
             self.remove_edge(edge)
 
     def game_over(self):
-        return not self.relevant_packages  and all(
-            [aigent.game_over() for aigent in self.agents])
+        if not self.all_packages:
+            return not self.relevant_packages and all(
+                [aigent.game_over() for aigent in self.agents])
+        else:
+            return not self.relevant_packages  and all(
+                [aigent.game_over() for aigent in self.agents]) and\
+                   self.timer >= min([pacakge.from_time for pacakge in self.all_packages])
 
     def add_aigent(self, aigent: Aigent):
         self.grid[aigent.point.y][aigent.point.x] = aigent
@@ -145,6 +156,12 @@ class Graph:
     def calc_heuristic(self, aigent_id):
         p1 = self.agents[aigent_id].score + 0.5 * len(self.agents[aigent_id].pakages) + 0.25 * len(self.all_packages)
         p2 = self.agents[1 - aigent_id].score + 0.5 * len(self.agents[1 - aigent_id].pakages) + 0.25 * len(
+            self.all_packages)
+        return p1, p2
+
+    def calc_heuristic_semi(self):
+        p1 = self.agents[0].score + 0.5 * len(self.agents[0].pakages) + 0.25 * len(self.all_packages)
+        p2 = self.agents[1].score + 0.5 * len(self.agents[1].pakages) + 0.25 * len(
             self.all_packages)
         return p1, p2
 

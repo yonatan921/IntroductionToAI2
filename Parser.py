@@ -33,7 +33,7 @@ class Parser:
             print("Mode: adversarial TS1 = IS1 - IS2, TS2 = IS2 - IS1")
         else:
             raise Exception
-        self.utility = strategy[args.utility]
+        self.utility = args.utility
 
         self.max_x = None
         self.max_y = None
